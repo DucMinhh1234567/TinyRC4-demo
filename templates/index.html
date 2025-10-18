@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyRC4 Visualizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TinyRC4 Encryption/Decryption Visualizer</h1>
+            <p class="subtitle">Educational tool for understanding TinyRC4 stream cipher algorithm</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="instant">Instant Mode</button>
+            <button class="tab-button" data-tab="visualizer">Step-by-Step Visualizer</button>
+        </div>
+
+        <!-- Instant Mode Tab -->
+        <div id="instant" class="tab-content active">
+            <div class="mode-selector">
+                <label>
+                    <input type="radio" name="operation" value="encrypt" checked>
+                    Encrypt
+                </label>
+                <label>
+                    <input type="radio" name="operation" value="decrypt">
+                    Decrypt
+                </label>
+            </div>
+
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="instant-text">Text (A-H characters only):</label>
+                    <input type="text" id="instant-text" placeholder="e.g., BAG" maxlength="20">
+                    <div class="binary-display" id="instant-binary-display"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="instant-key">Key (comma-separated 0-7 integers):</label>
+                    <input type="text" id="instant-key" placeholder="e.g., 2,1,3" maxlength="20">
+                </div>
+
+                <button id="instant-submit" class="submit-btn">Process</button>
+            </div>
+
+            <div class="result-section" id="instant-result" style="display: none;">
+                <h3>Result</h3>
+                <div class="result-content" id="instant-result-content"></div>
+            </div>
+        </div>
+
+        <!-- Step-by-Step Visualizer Tab -->
+        <div id="visualizer" class="tab-content">
+            <div class="mode-selector">
+                <label>
+                    <input type="radio" name="viz-operation" value="encrypt" checked>
+                    Encrypt
+                </label>
+                <label>
+                    <input type="radio" name="viz-operation" value="decrypt">
+                    Decrypt
+                </label>
+            </div>
+
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="viz-text">Text (A-H characters only):</label>
+                    <input type="text" id="viz-text" placeholder="e.g., BAG" maxlength="20">
+                    <div class="binary-display" id="viz-binary-display"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="viz-key">Key (comma-separated 0-7 integers):</label>
+                    <input type="text" id="viz-key" placeholder="e.g., 2,1,3" maxlength="20">
+                </div>
+
+                <button id="viz-submit" class="submit-btn">Start Visualization</button>
+            </div>
+
+            <div class="visualizer-section" id="visualizer-content" style="display: none;">
+                <div class="controls">
+                    <div class="playback-controls">
+                        <button id="play-pause" class="control-btn">▶️ Play</button>
+                        <button id="prev-step" class="control-btn">⏮️ Previous</button>
+                        <button id="next-step" class="control-btn">⏭️ Next</button>
+                        <button id="reset" class="control-btn">🔄 Reset</button>
+                    </div>
+                    
+                    <div class="speed-controls">
+                        <label for="speed">Speed:</label>
+                        <select id="speed">
+                            <option value="0.5">0.5x</option>
+                            <option value="1" selected>1x</option>
+                            <option value="2">2x</option>
+                            <option value="4">4x</option>
+                        </select>
+                    </div>
+
+                    <div class="detail-controls">
+                        <label for="detail-level">Detail Level:</label>
+                        <select id="detail-level">
+                            <option value="phases">Major Phases Only</option>
+                            <option value="steps" selected>Per Encryption Step</option>
+                            <option value="substeps">All Substeps</option>
+                            <option value="full">Full Detail</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="step-info">
+                    <div class="step-counter">
+                        Step <span id="current-step">0</span> of <span id="total-steps">0</span>
+                    </div>
+                    <div class="step-description" id="step-description"></div>
+                </div>
+
+                <div class="arrays-container">
+                    <div class="array-section">
+                        <h4>S Array</h4>
+                        <div class="array-grid" id="s-array"></div>
+                    </div>
+                    
+                    <div class="array-section">
+                        <h4>T Array</h4>
+                        <div class="array-grid" id="t-array"></div>
+                    </div>
+                </div>
+
+                <div class="variables-section">
+                    <div class="variable">
+                        <span class="var-label">i:</span>
+                        <span class="var-value" id="var-i">-</span>
+                    </div>
+                    <div class="variable">
+                        <span class="var-label">j:</span>
+                        <span class="var-value" id="var-j">-</span>
+                    </div>
+                    <div class="variable">
+                        <span class="var-label">t:</span>
+                        <span class="var-value" id="var-t">-</span>
+                    </div>
+                    <div class="variable">
+                        <span class="var-label">k:</span>
+                        <span class="var-value" id="var-k">-</span>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <h3>Final Result</h3>
+                    <div class="result-content" id="viz-result-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>About TinyRC4</h3>
+            <ul>
+                <li>Supports 8 characters: A-H (encoded as 000-111)</li>
+                <li>Key: 1-8 integers, each 0-7</li>
+                <li>Uses S and T arrays of size 8</li>
+                <li>Example: "BAG" with key "2,1,3" → "EBA"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/visualizer.js') }}"></script>
+</body>
+</html>
