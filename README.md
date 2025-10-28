@@ -209,3 +209,5 @@ This project is created for educational purposes. Feel free to use and modify fo
 ## References
 
 Based on the lecture material "AN TOÀN VÀ BẢO MẬT THÔNG TIN - Chương 2: MÃ HOÁ KHOÁ ĐỐI XỨNG" covering TinyRC4 algorithm implementation.
+
+

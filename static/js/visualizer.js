@@ -6,6 +6,7 @@
 class TinyRC4Visualizer {
     constructor() {
         this.currentSteps = [];
+        this.filteredSteps = [];
         this.currentStepIndex = 0;
         this.isPlaying = false;
         this.playInterval = null;
@@ -246,11 +247,11 @@ class TinyRC4Visualizer {
         // Show visualizer section
         document.getElementById('visualizer-content').style.display = 'block';
         
-        // Update step counter
-        this.updateStepCounter();
-        
-        // Filter steps based on detail level
+        // Filter steps based on detail level first
         this.filterSteps();
+        
+        // Update step counter after filtering
+        this.updateStepCounter();
         
         // Show final result
         this.showVisualizerResult(result, operation);
@@ -260,10 +261,31 @@ class TinyRC4Visualizer {
     }
 
     filterSteps() {
-        // This would filter steps based on detail level
-        // For now, we'll show all steps
-        this.filteredSteps = this.currentSteps;
+        const level = this.currentDetailLevel;
+
+        if (level === 'phases') {
+            // Show only major phases: initialization + permutation + per-symbol "Calculate k" steps
+            this.filteredSteps = this.currentSteps.filter(step =>
+                step.phase === 'init' ||
+                (step.phase === 'generate' && typeof step.description === 'string' && step.description.startsWith('Calculate k'))
+            );
+        } else if (level === 'steps') {
+            // Show all normal steps (current behavior)
+            this.filteredSteps = this.currentSteps;
+        } else if (level === 'substeps') {
+            // Placeholder: same as steps for now (can be expanded if backend emits finer substeps)
+            this.filteredSteps = this.currentSteps;
+        } else { // 'full'
+            // Full detail currently equals all recorded steps
+            this.filteredSteps = this.currentSteps;
+        }
+
+        // Keep index in range and update display
+        this.currentStepIndex = Math.min(this.currentStepIndex, Math.max(this.filteredSteps.length - 1, 0));
         this.updateStepCounter();
+        if (this.filteredSteps.length > 0) {
+            this.displayCurrentStep();
+        }
     }
 
     updateStepCounter() {
